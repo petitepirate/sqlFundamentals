@@ -20,12 +20,27 @@ WHERE gdp/population > (SELECT gdp/population
 
 -- 3.
 -- List the name and continent of countries in the continents containing either Argentina or Australia. Order by name of the country.
-
+SELECT name, continent
+FROM world
+WHERE continent IN( (Select continent
+FROM world
+WHERE name = 'Argentina'), (Select continent
+FROM world
+WHERE name = 'Australia'))
+ORDER BY name;
 
 
 -- 4.
 -- Which country has a population that is more than Canada but less than Poland? Show the name and the population.
-
+SELECT name
+FROM world
+WHERE population >
+     (SELECT population
+    FROM world
+    WHERE name='Canada') AND population < (SELECT population
+    FROM world
+    WHERE name='Poland')
+;
 
 
 
@@ -38,7 +53,11 @@ WHERE gdp/population > (SELECT gdp/population
 -- Andorra	0%
 -- Austria	11%
 
-
+SELECT name, CONCAT(ROUND(population/(SELECT population
+    FROM world
+    WHERE name = 'Germany')*100),'%') AS percentage
+from world
+WHERE continent = 'Europe';
 
 
 
@@ -58,20 +77,32 @@ WHERE gdp/population > (SELECT gdp/population
 
 -- 6.
 -- Which countries have a GDP greater than every country in Europe? [Give the name only.] (Some countries may have NULL gdp values)
-
+SELECT name
+FROM world
+WHERE gdp > (SELECT MAX(gdp)
+FROM world
+WHERE continent='Europe');
 
 
 
 -- 7.
 -- Find the largest country (by area) in each continent, show the continent, the name and the area:
-
+SELECT continent, name, area
+FROM world as w1
+WHERE area = (SELECT max(area)
+FROM world as w2
+where w1.continent=w2.continent);
 
 
 
 
 -- 8.
 -- List each continent and the name of the country that comes first alphabetically.
-
+SELECT continent, name
+FROM world as w1
+WHERE name = (SELECT min(name)
+FROM world as w2
+where w1.continent=w2.continent);
 
 
 
@@ -79,7 +110,11 @@ WHERE gdp/population > (SELECT gdp/population
 
 -- 9.
 -- Find the continents where all countries have a population <= 25000000. Then find the names of the countries associated with these continents. Show name, continent and population.
-
+SELECT name, continent, population
+FROM world
+where continent not in (select distinct continent
+from world
+where population >25000000);
 
 
 
@@ -89,7 +124,11 @@ WHERE gdp/population > (SELECT gdp/population
 
 -- 10.
 -- Some countries have populations more than three times that of any of their neighbours (in the same continent). Give the countries and continents.
-
+SELECT name, continent
+FROM world as w1
+where w1.population/3 > (SELECT max(population)
+FROM world as w2
+where w1.continent=w2.continent and w1.population<>w2.population);
 
 
 
